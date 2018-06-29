@@ -5,6 +5,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
@@ -265,7 +266,7 @@ public class LinkTabView extends LinearLayout implements PagerTopAdapter.PagerIt
                 if (mBottomVp != null) {
                     mBottomVp.setCurrentItem(mBottomSelectedPosition);
                 }
-                setBottomViewPagerListener();
+                setBottomViewPagerListener(true);
             }
         });
     }
@@ -282,7 +283,7 @@ public class LinkTabView extends LinearLayout implements PagerTopAdapter.PagerIt
             if (mTopPagerAdapter != null) {
                 mTopPagerAdapter.setSelectedViewBackground(mBottomSelectedPosition);
             }
-            setBottomViewPagerListener();
+            setBottomViewPagerListener(false);
         }
 
         @Override
@@ -297,11 +298,13 @@ public class LinkTabView extends LinearLayout implements PagerTopAdapter.PagerIt
 
     /**
      * 设置底部ViewPager监听
+     *
+     * @param isTopSlide 是否是顶部滑动
      */
-    private void setBottomViewPagerListener() {
+    private void setBottomViewPagerListener(boolean isTopSlide) {
         if (!mCurrentWeek.isEmpty() && mBottomVpListener != null) {
             DayData dayData = mCurrentWeek.get(mBottomSelectedPosition);
-            mBottomVpListener.onPagerBottomSelected(mBottomSelectedPosition, dayData);
+            mBottomVpListener.onPagerBottomSelected(isTopSlide, mBottomSelectedPosition, dayData);
         }
     }
 
@@ -319,16 +322,21 @@ public class LinkTabView extends LinearLayout implements PagerTopAdapter.PagerIt
         }
     }
 
-    public void setViewPager(ViewPager viewPager, FragmentActivity fragmentActivity, ArrayList<Fragment> fragments) {
+    /**
+     * @param viewPager       底部的viewpager
+     * @param fragmentManager 管理类
+     * @param fragments       fragment集合
+     */
+    public void setViewPager(final ViewPager viewPager, FragmentManager fragmentManager, ArrayList<Fragment> fragments) {
         if (viewPager == null) {
             throw new IllegalStateException("ViewPager can not be NULL !");
         }
-        if (fragmentActivity == null)
+        if (fragmentManager == null)
             return;
         if (fragments.isEmpty())
             return;
         this.mBottomVp = viewPager;
-        viewPager.setAdapter(new PagerBottomAdapter(fragmentActivity.getSupportFragmentManager(), fragments, mTitles));
+        viewPager.setAdapter(new PagerBottomAdapter(fragmentManager, fragments, mTitles));
         viewPager.setOffscreenPageLimit(7);
         viewPager.removeOnPageChangeListener(mBottomChangeListener);
         viewPager.addOnPageChangeListener(mBottomChangeListener);
@@ -339,7 +347,7 @@ public class LinkTabView extends LinearLayout implements PagerTopAdapter.PagerIt
      * 设置前后最大天数，以 周 为单位
      *
      * @param pastWeek   过去最大周数
-     * @param futureWeek 未来多大周数
+     * @param futureWeek 未来最大周数
      */
     public void setLimitWeek(int pastWeek, int futureWeek) {
         if (pastWeek > 0) {

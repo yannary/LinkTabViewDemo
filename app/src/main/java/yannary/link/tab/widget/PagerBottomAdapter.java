@@ -38,6 +38,6 @@ public class PagerBottomAdapter extends FragmentPagerAdapter {
     }
 
     public interface PagerItemSelectedListener {
-        void onPagerBottomSelected(int position, DayData dayData);
+        void onPagerBottomSelected(boolean isTopSlide, int position, DayData dayData);
     }
 }
