@@ -53,6 +53,7 @@ public class LinkTabView extends LinearLayout implements PagerTopAdapter.PagerIt
     private int mFutureWeek = 1; // 未来1周
     private int mPastWeek = 40; // 之前40周
     private List<DayData> mCurrentWeek = new ArrayList<>();
+    private boolean isTopSlide;
 
     public LinkTabView(Context context) {
         this(context, null, 0);
@@ -266,7 +267,8 @@ public class LinkTabView extends LinearLayout implements PagerTopAdapter.PagerIt
                 if (mBottomVp != null) {
                     mBottomVp.setCurrentItem(mBottomSelectedPosition);
                 }
-                setBottomViewPagerListener(true);
+                isTopSlide = true;
+                setBottomViewPagerListener();
             }
         });
     }
@@ -283,7 +285,7 @@ public class LinkTabView extends LinearLayout implements PagerTopAdapter.PagerIt
             if (mTopPagerAdapter != null) {
                 mTopPagerAdapter.setSelectedViewBackground(mBottomSelectedPosition);
             }
-            setBottomViewPagerListener(false);
+            setBottomViewPagerListener();
         }
 
         @Override
@@ -298,10 +300,8 @@ public class LinkTabView extends LinearLayout implements PagerTopAdapter.PagerIt
 
     /**
      * 设置底部ViewPager监听
-     *
-     * @param isTopSlide 是否是顶部滑动
      */
-    private void setBottomViewPagerListener(boolean isTopSlide) {
+    private void setBottomViewPagerListener() {
         if (!mCurrentWeek.isEmpty() && mBottomVpListener != null) {
             DayData dayData = mCurrentWeek.get(mBottomSelectedPosition);
             mBottomVpListener.onPagerBottomSelected(isTopSlide, mBottomSelectedPosition, dayData);
@@ -312,6 +312,7 @@ public class LinkTabView extends LinearLayout implements PagerTopAdapter.PagerIt
     public void onPagerTopItemClick(View view, int position, DayData dayData) {
         mBottomSelectedPosition = position;
         if (mBottomVp != null) {
+            isTopSlide = true;
             mBottomVp.setCurrentItem(position);
         }
         TextView tv = (TextView) view;
